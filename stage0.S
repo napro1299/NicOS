@@ -1,4 +1,11 @@
-org 0x7C00
+;
+; Bootloader Calling Convention (BCC)
+; Parameters are pushed onto the stack from left
+; to right.
+;
+%include "constant.S"
+
+org STAGE_0_ADDR
 bits 16
 
 mov bp, 0x7c00
@@ -8,9 +15,6 @@ mov es, ax
 mov ds, ax
 mov ss, ax
 mov sp, bp
-
-mov cx, 0x2222
-call printx
 
 _start:
 	mov si, MSG_STAGE2_LOAD
@@ -23,14 +27,14 @@ _start:
 
 	jmp $
 
-printc: ; printc(al)
+printc: ; printc(al) non-BCC
 	pusha
 	mov ah, 0x0e
 	int 0x10
 	popa
 	ret
 
-printstr: ; printstr(si)
+printstr: ; printstr(si) non-BCC
 	pusha
 	mov ah, 0x0e
 	xor bh, bh
@@ -42,34 +46,6 @@ printstr: ; printstr(si)
 		jmp .printstr_L
 	.printstr_end:
 	popa
-	ret
-
-printx: ; printx(cx)
-	;mov si, STR_HEX_PRE
-	;call printstr
-	mov al, '0'
-	call printc
-	mov al, 'x'
-	call printc
-
-	mov bx, TBL_HEX
-
-	mov al, ch
-	xlat 
-	call printc
-
-	shl al, 4
-	xlat
-	call printc
-
-	mov al, cl
-	xlat
-	call printc
-
-	shl al, 4
-	xlat
-	call printc
-
 	ret
 
 MSG_STAGE2_LOAD: db 'Loading stage2 bootloader...', 0x0a, 0

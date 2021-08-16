@@ -5,6 +5,8 @@
 ;
 %include "constant.S"
 
+%include "print.S"
+
 org STAGE_0_ADDR
 bits 16
 
@@ -17,39 +19,18 @@ mov ss, ax
 mov sp, bp
 
 _start:
-	mov si, MSG_STAGE2_LOAD
+	mov si, MSG_STAGE1_LOAD
 	call printstr
 	; load second stage
 
 
-	mov si, MSG_STAGE2_LOAD_FAIL
+	mov si, MSG_STAGE1_LOAD_FAIL
 	call printstr
 
 	jmp $
 
-printc: ; printc(al) non-BCC
-	pusha
-	mov ah, 0x0e
-	int 0x10
-	popa
-	ret
-
-printstr: ; printstr(si) non-BCC
-	pusha
-	mov ah, 0x0e
-	xor bh, bh
-	.printstr_L:
-		lodsb
-		or al, al
-		jz .printstr_end
-		int 0x10
-		jmp .printstr_L
-	.printstr_end:
-	popa
-	ret
-
-MSG_STAGE2_LOAD: db 'Loading stage2 bootloader...', 0x0a, 0
-MSG_STAGE2_LOAD_FAIL: db 'Failed to load stage2 bootloader.', 0x0a, 0
+MSG_STAGE1_LOAD: db 'Loading stage2 bootloader...', 0x0a, 0
+MSG_STAGE1_LOAD_FAIL: db 'Failed to load stage2 bootloader.', 0x0a, 0
 
 TBL_HEX: db '0123456789ABCDEF', 0
 STR_HEX_PRE: db '0x', 0
